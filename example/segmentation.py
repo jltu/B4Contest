@@ -2,10 +2,10 @@ import os
 import numpy as np
 import SimpleITK as sItk
 
-DATA_DIR = '../train'
+DATA_DIR = 'train/'
 OUTPUT_DIR = 'output'
 CASE_LIST_PATH = 'test_case_list.txt'
-/
+
 
 def main():
     # Get the list of case IDs
@@ -19,8 +19,8 @@ def main():
 
 def run_segmentation(case):
     # Read the target image and the bone label image
-    itk_img = sItk.ReadImage(os.path.join(DATA_DIR, 'Image', case + '.mhd'))
-    itk_mask = sItk.ReadImage(os.path.join(DATA_DIR, 'Bone', case + '.mhd'))
+    itk_img = sItk.ReadImage(os.path.join(DATA_DIR, 'Image/', case + '.mhd'))
+    itk_mask = sItk.ReadImage(os.path.join(DATA_DIR, 'Bone/', case + '.mhd'))
 
     # Convert ITK arrays into NumPy array
     img = sItk.GetArrayFromImage(itk_img)
