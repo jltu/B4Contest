@@ -1,7 +1,7 @@
 import os
 import SimpleITK as sItk
 
-DATA_DIR = '../train'
+DATA_DIR = 'train/'
 OUTPUT_DIR = 'output'
 CASE_LIST_PATH = 'test_case_list.txt'
 
@@ -25,8 +25,8 @@ def main():
 def evaluate(case):
     # Read the target image and the bone label image
     itk_seg = sItk.ReadImage(os.path.join(OUTPUT_DIR, case + '.mhd'))
-    itk_gt = sItk.ReadImage(os.path.join(DATA_DIR, 'Tumor', case + '.mhd'))
-    itk_mask = sItk.ReadImage(os.path.join(DATA_DIR, 'Bone', case + '.mhd'))
+    itk_gt = sItk.ReadImage(os.path.join(DATA_DIR, 'Tumor/', case + '.mhd'))
+    itk_mask = sItk.ReadImage(os.path.join(DATA_DIR, 'Bone/', case + '.mhd'))
 
     # Convert ITK arrays into NumPy boolean arrays
     seg = sItk.GetArrayFromImage(itk_seg).astype(bool)

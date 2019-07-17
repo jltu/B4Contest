@@ -4,15 +4,20 @@ import os
 import numpy as np
 import SimpleITK as sItk
 
-data_path = 'train/'
+DATA_PATH_TRAIN = 'train/'
+DATA_PATH_TEST = 'test/'
 CASE_LIST_PATH = 'test_case_list.txt'
 
-image_rows = 1024
-image_cols = 512
+image_rows = 1024       # height
+image_cols = 512        # width
+
+
+# ------------------------------------------------------------------------------------------------
+# Train Data
 
 
 def create_img_train_data():
-    train_data_path = os.path.join(data_path, 'Image')
+    train_data_path = os.path.join(DATA_PATH_TRAIN, 'Image')
     images = os.listdir(train_data_path)
     num = len(images)
     count = num / 2
@@ -27,7 +32,7 @@ def create_img_train_data():
     for filename in images:
         if filename.endswith('.mhd'):
             # Read the target image and the bone label image
-            itk_img = sItk.ReadImage(os.path.join(data_path, 'Image/', filename))
+            itk_img = sItk.ReadImage(os.path.join(DATA_PATH_TRAIN, 'Image/', filename))
 
             # Convert ITK arrays into NumPy array
             img = sItk.GetArrayFromImage(itk_img)
@@ -50,7 +55,7 @@ def create_img_train_data():
 
 
 def create_mask_train_data():
-    train_data_path = os.path.join(data_path, 'Bone')
+    train_data_path = os.path.join(DATA_PATH_TRAIN, 'Bone')
     mask_images = os.listdir(train_data_path)
     num = len(mask_images)
     count = num / 2
@@ -65,7 +70,7 @@ def create_mask_train_data():
     for filename in mask_images:
         if filename.endswith('.mhd'):
             # Read the target image and the bone label image
-            itk_img_mask = sItk.ReadImage(os.path.join(data_path, 'Bone/', filename))
+            itk_img_mask = sItk.ReadImage(os.path.join(DATA_PATH_TRAIN, 'Bone/', filename))
 
             # Convert ITK arrays into NumPy array
             img_mask = sItk.GetArrayFromImage(itk_img_mask)
@@ -87,6 +92,68 @@ def create_mask_train_data():
     print('Saving to .npy files done.')
 
 
+def load_train_data():
+    imgs_train = np.load('imgs_train.npy')
+    imgs_mask_train = np.load('imgs_mask_train.npy')
+    return imgs_train, imgs_mask_train
+
+
+# ------------------------------------------------------------------------------------------------
+# Test Data
+
+
+def create_img_test_data():
+    train_data_path = os.path.join(DATA_PATH_TEST, 'Image')
+    images = os.listdir(train_data_path)
+    num = len(images)
+    count = num / 2
+
+    imgs = np.ndarray((int(num), int(image_rows), int(image_cols)), dtype=np.uint8)
+# imgs_id = np.ndarray((num, ), dtype=np.int32)
+
+
+    i = 1
+    print('-' * 30)
+    print('Creating test images for Image...')
+    print('-' * 30)
+
+    for filename in images:
+        if filename.endswith('.mhd'):
+            # Read the target image and the bone label image
+            itk_img = sItk.ReadImage(os.path.join(DATA_PATH_TEST, 'Image/', filename))
+
+        # img_id = [None] * 50
+
+            # Convert ITK arrays into NumPy array
+            img = sItk.GetArrayFromImage(itk_img)
+
+            img = np.array([img])
+            imgs[i] = img
+
+        # imgs_id[i] = img_id
+
+            print('Done: {0}/{1} images'.format(i, count))
+
+            i += 1
+            continue
+        else:
+            continue
+
+    print('Loading done.')
+    print(imgs[i])
+
+    np.save('imgs_test.npy', imgs)
+# np.save('imgs_id_test.npy', imgs_id)
+    print('Saving to .npy files done.')
+
+
+def load_test_data():
+    imgs_test = np.load('imgs_test.npy')
+# imgs_id = np.load('imgs_id_test.npy')
+    return imgs_test,  # imgs_id
+
+
 if __name__ == '__main__':
     create_img_train_data()
     create_mask_train_data()
+    create_img_test_data()
