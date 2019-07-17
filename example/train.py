@@ -14,8 +14,8 @@ from data import load_train_data, load_test_data
 
 K.set_image_data_format('channels_last')
 
-img_rows = 96
-img_cols = 96
+img_rows = 128
+img_cols = 128
 
 smooth = 1
 
@@ -122,6 +122,7 @@ def train_and_predict():
     print('Loading and preprocessing test data...')
     print('-'*30)
     imgs_test, imgs_id_test = load_test_data()
+# imgs_test = load_test_data()
     imgs_test = preprocess(imgs_test)
 
     imgs_test = imgs_test.astype('float32')
@@ -149,6 +150,12 @@ def train_and_predict():
     for image, image_id in zip(imgs_mask_test, imgs_id_test):
         image = (image[:, :, 0] * 255.).astype(np.uint8)
         imsave(os.path.join(pred_dir, str(image_id) + '_pred.png'), image)
+
+    # if not os.path.exists(pred_dir):
+    #     os.mkdir(pred_dir)
+    # for image in zip(imgs_mask_test):
+    #     image = (image[:, :, 0] * 255.).astype(np.uint8)
+    #     imsave(os.path.join(pred_dir, 'hi' + '_pred.png'), image)
 
 
 if __name__ == '__main__':

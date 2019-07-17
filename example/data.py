@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import numpy as np
 import SimpleITK as sItk
+import re
 
 DATA_PATH_TRAIN = 'train/'
 DATA_PATH_TEST = 'test/'
@@ -109,7 +110,7 @@ def create_img_test_data():
     count = num / 2
 
     imgs = np.ndarray((int(num), int(image_rows), int(image_cols)), dtype=np.uint8)
-# imgs_id = np.ndarray((num, ), dtype=np.int32)
+    imgs_id = np.ndarray((num, ), dtype=np.int32)
 
 
     i = 1
@@ -121,8 +122,7 @@ def create_img_test_data():
         if filename.endswith('.mhd'):
             # Read the target image and the bone label image
             itk_img = sItk.ReadImage(os.path.join(DATA_PATH_TEST, 'Image/', filename))
-
-        # img_id = [None] * 50
+            img_id = int(re.search(r'\d+', filename).group())
 
             # Convert ITK arrays into NumPy array
             img = sItk.GetArrayFromImage(itk_img)
@@ -130,7 +130,7 @@ def create_img_test_data():
             img = np.array([img])
             imgs[i] = img
 
-        # imgs_id[i] = img_id
+            imgs_id[i] = img_id
 
             print('Done: {0}/{1} images'.format(i, count))
 
@@ -143,14 +143,14 @@ def create_img_test_data():
     print(imgs[i])
 
     np.save('imgs_test.npy', imgs)
-# np.save('imgs_id_test.npy', imgs_id)
+    np.save('imgs_id_test.npy', imgs_id)
     print('Saving to .npy files done.')
 
 
 def load_test_data():
     imgs_test = np.load('imgs_test.npy')
-# imgs_id = np.load('imgs_id_test.npy')
-    return imgs_test,  # imgs_id
+    imgs_id = np.load('imgs_id_test.npy')
+    return imgs_test, imgs_id
 
 
 if __name__ == '__main__':
