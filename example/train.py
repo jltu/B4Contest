@@ -5,14 +5,14 @@ from skimage.transform import resize
 from skimage.io import imsave
 import numpy as np
 from keras.models import Model
-from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Conv2DTranspose
+from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Conv2DTranspose, Dropout
 from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras import backend as K
 
 from data import load_train_data, load_test_data
 
-K.set_image_data_format('channels_last')
+# K.set_image_data_format('channels_last')
 
 img_rows = 128
 img_cols = 128
@@ -28,12 +28,20 @@ def dice_coef(y_true, y_pred):
 
 
 def dice_coef_loss(y_true, y_pred):
-    return -dice_coef(y_true, y_pred)
+    return 1-dice_coef(y_true, y_pred)
 
 
 def get_unet():
+    # keras.layers.Conv2D(filters, kernel_size, strides=(1, 1),
+    #   padding='valid', data_format=None, dilation_rate=(1, 1),
+    #   activation=None, use_bias=True, kernel_initializer='glorot_uniform',
+    #   bias_initializer='zeros', kernel_regularizer=None,
+    #   bias_regularizer=None, activity_regularizer=None,
+    #   kernel_constraint=None, bias_constraint=None)
+
     inputs = Input((img_rows, img_cols, 1))
     conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
+    conv1 = Dropout(0.1)(conv1)
     conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
     pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
 
@@ -52,19 +60,23 @@ def get_unet():
     conv5 = Conv2D(512, (3, 3), activation='relu', padding='same')(pool4)
     conv5 = Conv2D(512, (3, 3), activation='relu', padding='same')(conv5)
 
-    up6 = concatenate([Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same')(conv5), conv4], axis=3)
+    up6 = concatenate([Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same')
+                       (conv5), conv4], axis=3)
     conv6 = Conv2D(256, (3, 3), activation='relu', padding='same')(up6)
     conv6 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv6)
 
-    up7 = concatenate([Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same')(conv6), conv3], axis=3)
+    up7 = concatenate([Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same')
+                       (conv6), conv3], axis=3)
     conv7 = Conv2D(128, (3, 3), activation='relu', padding='same')(up7)
     conv7 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv7)
 
-    up8 = concatenate([Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same')(conv7), conv2], axis=3)
+    up8 = concatenate([Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same')
+                       (conv7), conv2], axis=3)
     conv8 = Conv2D(64, (3, 3), activation='relu', padding='same')(up8)
     conv8 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv8)
 
-    up9 = concatenate([Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(conv8), conv1], axis=3)
+    up9 = concatenate([Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')
+                       (conv8), conv1], axis=3)
     conv9 = Conv2D(32, (3, 3), activation='relu', padding='same')(up9)
     conv9 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv9)
 
@@ -109,20 +121,20 @@ def train_and_predict():
     print('Creating and compiling model...')
     print('-'*30)
     model = get_unet()
+    earlystopper = EarlyStopping(patience=5, verbose=1)
     model_checkpoint = ModelCheckpoint('weights.h5', monitor='val_loss', save_best_only=True)
 
     print('-'*30)
     print('Fitting model...')
     print('-'*30)
-    model.fit(imgs_train, imgs_mask_train, batch_size=32, nb_epoch=20, verbose=1, shuffle=True,
+    model.fit(imgs_train, imgs_mask_train, batch_size=32, nb_epoch=100, verbose=1, shuffle=True,
               validation_split=0.2,
-              callbacks=[model_checkpoint])
+              callbacks=[model_checkpoint, earlystopper])
 
     print('-'*30)
     print('Loading and preprocessing test data...')
     print('-'*30)
     imgs_test, imgs_id_test = load_test_data()
-# imgs_test = load_test_data()
     imgs_test = preprocess(imgs_test)
 
     imgs_test = imgs_test.astype('float32')
@@ -149,13 +161,8 @@ def train_and_predict():
         os.mkdir(pred_dir)
     for image, image_id in zip(imgs_mask_test, imgs_id_test):
         image = (image[:, :, 0] * 255.).astype(np.uint8)
+        image = image.astype(np.uint8)
         imsave(os.path.join(pred_dir, str(image_id) + '_pred.png'), image)
-
-    # if not os.path.exists(pred_dir):
-    #     os.mkdir(pred_dir)
-    # for image in zip(imgs_mask_test):
-    #     image = (image[:, :, 0] * 255.).astype(np.uint8)
-    #     imsave(os.path.join(pred_dir, 'hi' + '_pred.png'), image)
 
 
 if __name__ == '__main__':

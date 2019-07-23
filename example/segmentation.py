@@ -26,10 +26,15 @@ def run_segmentation(case):
     img = sItk.GetArrayFromImage(itk_img)
     mask = sItk.GetArrayFromImage(itk_mask).astype(bool)
 
-    # Apply some simple thresholds
-    # Outside the bone should be masked out
-    seg = (img >= 50) & mask
-    # Output pixel type should be Byte
+    # # Apply some simple thresholds
+    # # Outside the bone should be masked out
+    # seg = (img >= 0) & mask
+    # # Output pixel type should be Byte
+    # seg = seg.astype(np.uint8)
+
+    # Apply Element-wise product to image and mask
+    # Outside of the bone should be masked out
+    seg = np.multiply(img, mask)
     seg = seg.astype(np.uint8)
 
     # Convert a NumPy array into an ITK array
