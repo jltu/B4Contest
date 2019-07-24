@@ -24,9 +24,9 @@ def create_img_train_data():
     num = len(images)
     count = num / 2
 
-    imgs = np.ndarray((int(num), int(image_rows), int(image_cols)), dtype=np.uint8)
+    imgs = np.ndarray((int(count), int(image_rows), int(image_cols)), dtype=np.uint8)
 
-    i = 1
+    i = 0
     print('-' * 30)
     print('Creating training images for Image...')
     print('-' * 30)
@@ -50,7 +50,7 @@ def create_img_train_data():
             continue
 
     print('Loading done.')
-    print(imgs[i])
+    print("imgs_train",imgs.shape,imgs)
 
     np.save('imgs_train.npy', imgs)
     print('Saving to .npy files done.')
@@ -62,9 +62,9 @@ def create_mask_train_data():
     num = len(mask_images)
     count = num / 2
 
-    imgs_mask = np.ndarray((int(num), int(image_rows), int(image_cols)), dtype=np.uint8)
+    imgs_mask = np.ndarray((int(count), int(image_rows), int(image_cols)), dtype=np.uint8)
 
-    i = 1
+    i = 0
     print('-' * 30)
     print('Creating Ground Truth Images...')
     print('-' * 30)
@@ -88,7 +88,7 @@ def create_mask_train_data():
             continue
 
     print('Loading done.')
-    print(imgs_mask[i])
+    print("imgs_mask",imgs_mask.shape,imgs_mask)
 
     np.save('imgs_mask_train.npy', imgs_mask)
     print('Saving to .npy files done.')
@@ -110,11 +110,11 @@ def create_img_test_data():
     num = len(images)
     count = num / 2
 
-    imgs = np.ndarray((int(num), int(image_rows), int(image_cols)), dtype=np.uint8)
-    imgs_id = np.ndarray((num, ), dtype=np.int32)
+    imgs = np.ndarray((int(count), int(image_rows), int(image_cols)), dtype=np.uint8)
+    imgs_id = np.ndarray((int(count), ), dtype=np.int32)
 
 
-    i = 1
+    i = 0
     print('-' * 30)
     print('Creating segmented images for test...')
     print('-' * 30)
@@ -141,8 +141,7 @@ def create_img_test_data():
             continue
 
     print('Loading done.')
-    print(imgs)
-    print(imgs_id)
+    print("imgs_test", imgs.shape, imgs)
 
     np.save('imgs_test.npy', imgs)
     np.save('imgs_id_test.npy', imgs_id)
