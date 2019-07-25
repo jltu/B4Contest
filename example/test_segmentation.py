@@ -3,7 +3,7 @@ import numpy as np
 import SimpleITK as sItk
 
 DATA_DIR = 'test/'
-OUTPUT_DIR = 'test_output'
+OUTPUT_DIR = 'test_seg_output'
 CASE_LIST_PATH = 'test/case_list.txt'
 
 

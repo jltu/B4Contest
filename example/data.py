@@ -5,9 +5,9 @@ import numpy as np
 import SimpleITK as sItk
 import re
 
-SEG_PATH_TRAIN = 'output/'
+SEG_PATH_TRAIN = 'train_seg_output/'
 DATA_PATH_TRAIN = 'train/'
-DATA_PATH_TEST = 'test_output/'
+DATA_PATH_TEST = 'test_seg_output/'
 CASE_LIST_PATH = 'test_case_list.txt'
 
 image_rows = 1024       # height
@@ -50,7 +50,6 @@ def create_img_train_data():
             continue
 
     print('Loading done.')
-    print("imgs_train",imgs.shape,imgs)
 
     np.save('imgs_train.npy', imgs)
     print('Saving to .npy files done.')
@@ -88,7 +87,6 @@ def create_mask_train_data():
             continue
 
     print('Loading done.')
-    print("imgs_mask",imgs_mask.shape,imgs_mask)
 
     np.save('imgs_mask_train.npy', imgs_mask)
     print('Saving to .npy files done.')
@@ -141,7 +139,6 @@ def create_img_test_data():
             continue
 
     print('Loading done.')
-    print("imgs_test", imgs.shape, imgs)
 
     np.save('imgs_test.npy', imgs)
     np.save('imgs_id_test.npy', imgs_id)
