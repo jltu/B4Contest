@@ -3,7 +3,7 @@ from __future__ import print_function
 import SimpleITK as sItk
 
 from data import load_train_data, load_test_data
-from train import get_unet
+from trainer import get_unet
 from utils import *
 
 PRED_DIR = r'C:\Users\jonathantu\B4Contest\example\preds'
@@ -40,7 +40,7 @@ def test_and_predict():
     print('-' * 30)
     print('Loading saved weights...')
     print('-' * 30)
-    model.load_weights('weights.h5')
+    model.load_weights('weights2000lr5e-4.h5')
 
     print('-' * 30)
     print('Predicting masks on test data...')
