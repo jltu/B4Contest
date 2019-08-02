@@ -1,4 +1,4 @@
 *.npy
 /train_seg_output/*
 /test_seg_output/*
-/preds/*
+

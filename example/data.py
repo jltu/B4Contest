@@ -7,7 +7,7 @@ import re
 
 SEG_PATH_TRAIN = 'train_seg_output/'
 DATA_PATH_TRAIN = 'train/'
-DATA_PATH_TEST = 'test_seg_output/'
+DATA_PATH_TEST = 'test/'
 CASE_LIST_PATH = 'test_case_list.txt'
 
 image_rows = 1024       # height
@@ -33,7 +33,7 @@ def create_img_train_data():
 
     for filename in images:
         if filename.endswith('.mhd'):
-            # Read the target segmented image
+            # Read the target image
             itk_img = sItk.ReadImage(os.path.join(SEG_PATH_TRAIN, filename))
             print(filename)
             # Convert ITK arrays into NumPy array
@@ -103,13 +103,13 @@ def load_train_data():
 
 
 def create_img_test_data():
-    train_data_path = DATA_PATH_TEST
+    train_data_path = os.path.join(DATA_PATH_TEST, 'Image')
     images = os.listdir(train_data_path)
     num = len(images)
     count = num / 2
 
     imgs = np.ndarray((int(count), int(image_rows), int(image_cols)), dtype=np.uint8)
-    imgs_id = np.ndarray((int(count), ), dtype=np.int32)
+    # imgs_id = np.ndarray((int(count), ), dtype=np.int32)
 
 
     i = 0
@@ -119,9 +119,9 @@ def create_img_test_data():
 
     for filename in images:
         if filename.endswith('.mhd'):
-            # Read the target image and the bone label image
-            itk_img = sItk.ReadImage(os.path.join(DATA_PATH_TEST, filename))
-            img_id = int(re.search(r'\d+', filename).group())
+            # Read the target test image
+            itk_img = sItk.ReadImage(os.path.join(DATA_PATH_TEST, 'Image/', filename))
+            # img_id = int(re.search(r'\d+', filename).group())
             print(filename)
             # Convert ITK arrays into NumPy array
             img = sItk.GetArrayFromImage(itk_img)
@@ -129,7 +129,7 @@ def create_img_test_data():
             img = np.array([img])
             imgs[i] = img
 
-            imgs_id[i] = img_id
+            # imgs_id[i] = img_id
 
             print('Done: {0}/{1} images'.format(i, count))
 
@@ -141,14 +141,14 @@ def create_img_test_data():
     print('Loading done.')
 
     np.save('imgs_test.npy', imgs)
-    np.save('imgs_id_test.npy', imgs_id)
+    # np.save('imgs_id_test.npy', imgs_id)
     print('Saving to .npy files done.')
 
 
 def load_test_data():
     imgs_test = np.load('imgs_test.npy')
-    imgs_id = np.load('imgs_id_test.npy')
-    return imgs_test, imgs_id
+    # imgs_id = np.load('imgs_id_test.npy')
+    return imgs_test
 
 
 if __name__ == '__main__':

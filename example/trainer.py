@@ -4,15 +4,13 @@ import numpy as np
 from keras.models import Model
 from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Conv2DTranspose
 from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint,CSVLogger
+from keras.callbacks import ModelCheckpoint, CSVLogger, EarlyStopping
 from keras import backend as K
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from tensorboard import TrainValTensorBoard
 from data import load_train_data
 
-# tf.enable_eager_execution()
 K.set_image_data_format('channels_last')
 
 img_rows = 1024
@@ -113,7 +111,7 @@ def train():
     print('Creating and compiling model...')
     print('-'*30)
     model = get_unet()
-    model_checkpoint = ModelCheckpoint('weights2000lr5e-4.h5', monitor='val_loss', save_best_only=True)
+    model_checkpoint = ModelCheckpoint('pract_weights.h5', monitor='val_loss', save_best_only=True)
 
     print('-'*30)
     print('Fitting model...')
@@ -129,10 +127,11 @@ def train():
     # mask_inputs.SetSpacing([2.8,2.8])
     # sItk.WriteImage(mask_inputs, r'C:\Users\jonathantu\B4Contest\example\confirm_input\CHECK_mask.mhd')
 
-    csv_logger = CSVLogger('training2000lr5e-4.log')
+    csv_logger = CSVLogger('pract_training.log')
+    # es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
 
     # Fitting the model
-    history = model.fit(imgs_train, imgs_mask_train, batch_size=4, nb_epoch=2000, verbose=1, shuffle=True,
+    history = model.fit(imgs_train, imgs_mask_train, batch_size=4, nb_epoch=200, verbose=1, shuffle=True,
                         validation_split=0.2,
                         callbacks=[model_checkpoint, csv_logger])  # TrainValTensorBoard(write_graph=False)])
 
@@ -143,7 +142,7 @@ def train():
     print('Displaying Graphs...')
     print('-' * 30)
 
-    # summarize history for accuracy
+    # summarize history for training dice coef
     plt.plot(history.history['dice_coef'])
     plt.plot(history.history['val_dice_coef'])
     plt.title('Model Dice Coefficient')

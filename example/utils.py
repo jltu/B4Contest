@@ -62,6 +62,7 @@ def load_matrix_data(path, dtype):
     data = np.asarray(data)
     return data
 
+
 # load list
 def load_list(path):
     data_list = []
